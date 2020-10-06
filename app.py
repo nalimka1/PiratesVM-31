@@ -18,6 +18,4 @@ mediator.get('GET_USER_BY_ID', '1')
 app = web.Application()
 Router(app, web, mediator)
 
-
-
 web.run_app(app)

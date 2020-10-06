@@ -17,6 +17,16 @@ def toDict(func):
     return wrapper
 
 
+# декоратор для сериализации ответа в строку
+def toString(func):
+    def wrapper(*args, **kwargs):
+        rows = func(*args, **kwargs)
+        for key in rows[0]:
+            return rows[0][key]
+
+    return wrapper
+
+
 class DB:
     def __init__(self, db):
         try:
@@ -46,6 +56,30 @@ class DB:
         query = "SELECT id, name, login, token FROM users WHERE id = %s"
         self.cursor.execute(query, userId)
         return self.cursor.fetchall()
+
+    @toDict
+    def getUserByLogin(self, login):
+        query = "SELECT id, name, login, token FROM users WHERE login = %s"
+        self.cursor.execute(query, [login])
+        return self.cursor.fetchall()
+
+    def insertUser(self, name, login, hash, token=""):
+        query = "INSERT INTO users (name, login, password, token) VALUES (%s, %s, %s, %s)"
+        self.cursor.execute(query, (name, login, hash, token))
+        self.connect.commit()
+        return True
+
+    @toString
+    def getHashByLogin(self, login):
+        query = "SELECT password FROM users WHERE login = %s"
+        self.cursor.execute(query, [login])
+        return self.cursor.fetchall()
+
+    def updateTokenByLogin(self, login, token):
+        query = "UPDATE users SET token = %s WHERE login = %s "
+        self.cursor.execute(query, (token, login))
+        self.connect.commit()
+        return True
 
     @toDict
     def getAllTestResults(self):
