@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 const StyledButton = styled.button`
-  background: #237773;
-  color: #ffe190;
+  background: ${({ theme }) => theme.bg};
+  color: ${({ theme }) => theme.fg};
   font-size: 2rem;
   margin: 4px;
   padding: 20px 0;
@@ -15,7 +15,7 @@ const StyledButton = styled.button`
 
   &:hover {
     cursor: pointer;
-    background: #6fb38e;
+    background: ${({ theme }) => theme.bgActive};
     border: 1px solid;
   }
 

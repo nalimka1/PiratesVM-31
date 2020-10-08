@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 const StyledLabel = styled.label`
-  color: white;
+  color: ${({ theme }) => theme.fg};
   font-size: 1.6rem;
   font-weight: 600;
 `;
@@ -13,28 +13,28 @@ const StyledInput = styled.input`
   padding: 20px 8px;
   min-width: 280px;
   margin: 8px;
-  color: white;
+  color: ${({ theme }) => theme.fg};
   background: transparent;
   border: none;
-  border-bottom: 2px solid #6fb38e;
+  border-bottom: 2px solid ${({ theme }) => theme.bgActive};
   outline: none;
   
   &::placeholder {
     font-size: 2rem;
-    color: white;
+    color: ${({ theme }) => theme.fg};
   }
   
   &:-webkit-autofill,
   &:-webkit-autofill:hover, 
   &:-webkit-autofill:focus, 
   &:-webkit-autofill:active {
-    background-color: #6fb38e;
+    background-color: ${({ theme }) => theme.bgActive};
   }
 `;
 
 const StyledError = styled.span`
   margin-top: 10px;
-  color: whitesmoke;
+  color: ${({ theme }) => theme.fgError};
   font-size: 1.4rem;
 `;
 
