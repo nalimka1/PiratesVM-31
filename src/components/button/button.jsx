@@ -7,7 +7,7 @@ const StyledButton = styled.button`
   color: ${({ theme }) => theme.fg};
   font-size: 2rem;
   margin: 4px;
-  padding: 20px 0;
+  padding: 20px 10px;
   border: none;
   border-radius: 50px;
   user-select: none;

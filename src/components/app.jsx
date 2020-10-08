@@ -5,10 +5,11 @@ import Authorization from './authorization/authorization';
 import useAuth from '../hooks/auth.hook';
 import { AUTH_URL } from '../constants/url.constants';
 import { ThemeProvider } from 'styled-components';
+import ErrorBoundary from './error-boundary/error-boundary';
 
 const theme = {
   fg: '#ffe190',
-  fgError: '#eed4d4',
+  fgError: '#d4eee8',
   bg: '#237773',
   bgActive: '#6fb38e',
 };
@@ -20,7 +21,8 @@ const App = () => {
   return (
     <Router>
       <ThemeProvider theme={theme}>
-        <AuthContext.Provider value={auth}>
+        <ErrorBoundary>
+          <AuthContext.Provider value={auth}>
           {!isAuth && <Redirect to={AUTH_URL}/>}
           <Switch>
             <Route>
@@ -28,6 +30,7 @@ const App = () => {
             </Route>
           </Switch>
         </AuthContext.Provider>
+        </ErrorBoundary>
       </ThemeProvider>
     </Router>
   );
