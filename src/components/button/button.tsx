@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 const StyledButton = styled.button`
@@ -30,9 +29,19 @@ const StyledButton = styled.button`
   }
 `;
 
+export interface ButtonProps {
+  children: React.ReactNode;
+  onClick?: (event: React.ReactEventHandler) => void;
+  className?: string;
+  disabled?: boolean;
+}
 
-const Button = ({
-  children, onClick, className, disabled, ...attrs
+const Button: React.FC<ButtonProps & React.ButtonHTMLAttributes<HTMLButtonElement>> = ({
+  children = 'Default button',
+  onClick = () => {},
+  className = '',
+  disabled = false,
+  ...attrs
 }) => {
   const onClickAction = (event) => disabled ? event.preventDefault() : onClick(event);
 
@@ -46,20 +55,6 @@ const Button = ({
       {children}
     </StyledButton>
   );
-};
-
-Button.propTypes = {
-  children: PropTypes.node,
-  onClick: PropTypes.func,
-  className: PropTypes.string,
-  disabled: PropTypes.bool,
-};
-
-Button.defaultProps = {
-  children: 'Default button',
-  onClick: () => {},
-  className: '',
-  disabled: false,
 };
 
 export default Button;

@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import AuthContext from '../../contexts/auth.context';
-import styled from 'styled-components'
+import styled from 'styled-components';
 import Button from '../button/button';
 import Input from '../input/input';
 import Banner from '../banner/banner';

@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 const StyledLabel = styled.label`
@@ -38,9 +37,19 @@ const StyledError = styled.span`
   font-size: 1.4rem;
 `;
 
+export interface InputProps {
+  id: string;
+  className?: string;
+  label?: string;
+  error?: string;
+}
 
-const Input = ({
-  id, className, label, error, ...attrs
+const Input: React.FC<InputProps & React.InputHTMLAttributes<HTMLInputElement>> = ({
+  id,
+  className = '',
+  label = '',
+  error = '',
+  ...attrs
 }) => {
   return (
     <>
@@ -58,19 +67,6 @@ const Input = ({
       }
     </>
   );
-};
-
-Input.propTypes = {
-  id: PropTypes.string.isRequired,
-  className: PropTypes.string,
-  label: PropTypes.string,
-  error: PropTypes.string,
-};
-
-Input.defaultProps = {
-  className: '',
-  label: '',
-  error: '',
 };
 
 export default Input;

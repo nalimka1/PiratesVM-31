@@ -23,13 +23,13 @@ const App = () => {
       <ThemeProvider theme={theme}>
         <ErrorBoundary>
           <AuthContext.Provider value={auth}>
-          {!isAuth && <Redirect to={AUTH_URL}/>}
-          <Switch>
-            <Route>
-              <Authorization/>
-            </Route>
-          </Switch>
-        </AuthContext.Provider>
+            {!isAuth && <Redirect to={AUTH_URL}/>}
+            <Switch>
+              <Route>
+                <Authorization/>
+              </Route>
+            </Switch>
+          </AuthContext.Provider>
         </ErrorBoundary>
       </ThemeProvider>
     </Router>
