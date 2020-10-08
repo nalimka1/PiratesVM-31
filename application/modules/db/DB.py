@@ -1,9 +1,19 @@
 import psycopg2
 import psycopg2.extras
 
-
 # декоратор для сериализации ответа в словарь (объект)
 def toDict(func):
+    def wrapper(*args, **kwargs):
+        row = func(*args, **kwargs)
+        d = {}
+        for key in row:
+            d[key] = row[key]
+        return d
+    return wrapper
+
+
+# декоратор для сериализации ответа в массив словарей (объект)
+def toArrayOfDicts(func):
     def wrapper(*args, **kwargs):
         rows = func(*args, **kwargs)
         arr = []
@@ -13,17 +23,15 @@ def toDict(func):
                 d[key] = row[key]
             arr.append(d)
         return arr
-
     return wrapper
 
 
-# декоратор для сериализации ответа в строку
+# декоратор для сериализации первого поля ответа в строку
 def toString(func):
     def wrapper(*args, **kwargs):
-        rows = func(*args, **kwargs)
-        for key in rows[0]:
-            return rows[0][key]
-
+        row = func(*args, **kwargs)
+        for key in row:
+            return row[key]
     return wrapper
 
 
@@ -46,7 +54,7 @@ class DB:
         self.cursor.close()
         self.connect.close()
 
-    @toDict
+    @toArrayOfDicts
     def getAllUsers(self):
         self.cursor.execute("SELECT id, name, login, token FROM users")
         return self.cursor.fetchall()
@@ -55,13 +63,19 @@ class DB:
     def getUserById(self, userId):
         query = "SELECT id, name, login, token FROM users WHERE id = %s"
         self.cursor.execute(query, userId)
-        return self.cursor.fetchall()
+        return self.cursor.fetchone()
 
     @toDict
     def getUserByLogin(self, login):
         query = "SELECT id, name, login, token FROM users WHERE login = %s"
         self.cursor.execute(query, [login])
-        return self.cursor.fetchall()
+        return self.cursor.fetchone()
+
+    @toDict
+    def getUserByToken(self, token):
+        query = "SELECT id, name, login, token FROM users WHERE token = %s"
+        self.cursor.execute(query, [token])
+        return self.cursor.fetchone()
 
     def insertUser(self, name, login, hash, token=""):
         query = "INSERT INTO users (name, login, password, token) VALUES (%s, %s, %s, %s)"
@@ -73,7 +87,7 @@ class DB:
     def getHashByLogin(self, login):
         query = "SELECT password FROM users WHERE login = %s"
         self.cursor.execute(query, [login])
-        return self.cursor.fetchall()
+        return self.cursor.fetchone()
 
     def updateTokenByLogin(self, login, token):
         query = "UPDATE users SET token = %s WHERE login = %s "

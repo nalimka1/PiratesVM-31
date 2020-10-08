@@ -19,9 +19,6 @@ class Mediator:
     def getTriggers(self):
         return self.TRIGGERS
 
-    def gettriggers(self):
-        return self.triggers
-
     def set(self, name, func):
         if self.TRIGGERS.get(name) and func:
             self.triggers.update({name: func})
@@ -30,10 +27,11 @@ class Mediator:
         if name:
             cb = self.triggers.get(name)
             return cb(data)
+        return None
 
     # EVENTS
 
-    def getEventTypes(self):
+    def getEvents(self):
         return self.EVENT_TYPES
 
     # подписаться на событие
