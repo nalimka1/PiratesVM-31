@@ -21,8 +21,7 @@ app = web.Application()
 sio.attach(app)
 Router(app, web, mediator)
 
-um = UserManager(db, mediator)
-um.auth('vasya', '123', '1')
+UserManager(db, mediator)
 ChatManager(db, mediator, sio)
 
 web.run_app(app)
