@@ -1,14 +1,18 @@
 import psycopg2
 import psycopg2.extras
 
+
 # декоратор для сериализации ответа в словарь (объект)
 def toDict(func):
     def wrapper(*args, **kwargs):
         row = func(*args, **kwargs)
         d = {}
-        for key in row:
-            d[key] = row[key]
-        return d
+        if row:
+            for key in row:
+                d[key] = row[key]
+            return d
+        else:
+            return None
     return wrapper
 
 
@@ -77,9 +81,9 @@ class DB:
         self.cursor.execute(query, [token])
         return self.cursor.fetchone()
 
-    def insertUser(self, name, login, hash, token=""):
+    def insertUser(self, name, login, password, token=None):
         query = "INSERT INTO users (name, login, password, token) VALUES (%s, %s, %s, %s)"
-        self.cursor.execute(query, (name, login, hash, token))
+        self.cursor.execute(query, (name, login, password, token))
         self.connect.commit()
         return True
 
