@@ -4,10 +4,10 @@ import AuthContext from '../contexts/auth.context';
 import Authorization from './authorization/authorization';
 import useAuth from '../hooks/auth.hook';
 import { AUTH_URL } from '../constants/url.constants';
-import { ThemeProvider } from 'styled-components';
+import { ThemeProvider, DefaultTheme } from 'styled-components';
 import ErrorBoundary from './error-boundary/error-boundary';
 
-const theme = {
+const theme: DefaultTheme = {
   fg: '#ffe190',
   fgError: '#d4eee8',
   bg: '#237773',
