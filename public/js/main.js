@@ -3,7 +3,7 @@ window.onload = function () {
 
     function sendMessage() {
         const token = 'TOKEN!!!';
-        const message = 'Azaza!!!';
+        const message = document.getElementById('message').value;
         socket.emit('sendMessage', { token, message });
     }
 
@@ -15,7 +15,6 @@ window.onload = function () {
     function onSendMessage(data) {
         console.log(data);
     }
-
     document.getElementById('sendMessage').addEventListener('click', sendMessage);
     document.getElementById('subscribeChat1').addEventListener('click', () =>
         subscribeRoom('subscribeChat1')

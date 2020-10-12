@@ -67,11 +67,15 @@ class UserManager:
             if self.__generateHash(hashDB, str(rnd)) == hash:
                 token = self.__generateToken(login)
                 self.__mediator.call(self.EVENTS['UPDATE_TOKEN_BY_LOGIN'], dict(login=login, token=token))
+                # добавляем пользователя в список пользователей онлайн
+                self.__mediator.call(self.EVENTS['ADD_USER_ONLINE'], dict(token=token))
                 return True
         return False
 
     def logout(self, token):
         user = self.__mediator.get(self.TRIGGERS['GET_USER_BY_TOKEN'],  dict(token=token))
+        # удаляем пользователя из списка пользователей онлайн
+        self.__mediator.call(self.EVENTS['DELETE_USER_ONLINE'], dict(token=token))
         token = 'NULL'
         if user:
             self.__mediator.call(self.EVENTS['UPDATE_TOKEN_BY_LOGIN'], dict(login=user['login'], token=token))

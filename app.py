@@ -10,6 +10,7 @@ from application.modules.user.UserManager import UserManager
 from application.modules.chat.ChatManager import ChatManager
 # audio ?
 # pirates
+from application.modules.game.Logic import Logic
 from application.router.Router import Router
 from application.socket.Socket import Socket
 
@@ -20,9 +21,11 @@ sio = socketio.AsyncServer()
 app = web.Application()
 sio.attach(app)
 Router(app, web, mediator)
+Logic(mediator)
 
 um = UserManager(db, mediator)
-um.auth('vasya', '123', '1')
-ChatManager(db, mediator, sio)
+# um.auth('vasya', '123', '1')
+ChatManager(db, mediator, sio, SETTINGS['CHAT'])
+
 
 web.run_app(app)

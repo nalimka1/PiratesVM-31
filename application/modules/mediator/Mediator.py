@@ -26,9 +26,8 @@ class Mediator:
     def get(self, name, data=None):
         if name:
             cb = self.triggers.get(name)
-            if cb:
-                if cb(data):
-                    return cb(data)
+            if cb and cb(data):
+                return cb(data)
         return None
 
     # EVENTS
