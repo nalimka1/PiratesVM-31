@@ -7,7 +7,10 @@ SETTINGS = {
         'PASS': '12345678',
     },
     'CHAT': {
-        'ECHO_DISTANCE': '10'
+        'ECHO_DISTANCE': 10,
+        'ROOMS': {
+            'ECHO': 'ECHO'
+        }
     },
     'MEDIATOR': {
         'EVENTS': {
