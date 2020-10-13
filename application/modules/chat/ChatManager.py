@@ -1,5 +1,4 @@
 from application.modules.BaseManager import BaseManager
-from application.modules.game.Point import Point
 
 
 class ChatManager(BaseManager):
@@ -10,11 +9,12 @@ class ChatManager(BaseManager):
         self.__usersSid = []
         self.__sid = ''
         # TODO
-        # 1. ПРИДУМАТЬ ГДЕ ХРАНИТЬ КООРДИНАТЫ!!!
+        # 1. ПРИДУМАТЬ ГДЕ ХРАНИТЬ КООРДИНАТЫ ЮЗЕРОВ!!!
         # (Когда измените место хранения коородинат исправте метод sendMessageToEchoChat)
+        # 2. Доработать метод saveMessage и создать таблицу messages в БД
 
-        # В массиве playersCoord должны храняться словари dict(token=token, point=Point(x, y))
-        self.playersCoord = []
+        # В массиве usersCoord должны храняться словари dict(token=token, point=Point(x, y))
+        self.usersCoord = []
 
         self.mediator.subscribe(self.EVENTS['ADD_USER_ONLINE'], self.addUserOnline)
         self.mediator.subscribe(self.EVENTS['DELETE_USER_ONLINE'], self.deleteUserOnline)
@@ -31,34 +31,39 @@ class ChatManager(BaseManager):
         @sio.on('sendMessage')
         async def onSendMessage(sid, data):
             if data['token']:
-                await self.sendMessage(data)
+                await self.sendMessage(sid, data)
 
         @sio.on('subscribeRoom')
         def onSubscribeRoom(sid, data):
             if data['token']:
                 self.subscribeRoom(sid, data['room'])
 
+        @sio.on('unsubscribeRoom')
+        def onUnsubscribeRoom(sid, data):
+            if data['token']:
+                self.unsubscribeRoom(sid, data['room'])
+
     # отпрваить сообщение
     async def sendMessage(self, sid, data):
-        if data['room']:
+        if data['room'] == self.__CHAT['ROOMS']['ECHO']:
+            await self.sendMessageToEchoChat(sid, data)
+        elif data['room']:
             await self.sio.emit('sendMessage', data, data['room'])
         else:
             await self.sio.emit('sendMessage', data)
 
+    # отправить сообщение в echoChat
     async def sendMessageToEchoChat(self, sid, data):
-        room = 'echo'
-        senderToken = None
+        room = self.__CHAT['ROOMS']['ECHO']
+        senderToken = data['token']
         senderCoord = None
-        for userSid in self.__usersSid:
-            if userSid['sid'] == sid:
-                senderToken = userSid['token']
-                break
-        for userCoord in self.playersCoord:
+        # по нашему token находим наши координаты
+        for userCoord in self.usersCoord:
             if userCoord['token'] == senderToken:
                 senderCoord = userCoord['point']
                 break
         # подписываем пользователей находящихся на определённом расстоянии
-        for userCoord in self.playersCoord:
+        for userCoord in self.usersCoord:
             # Измеряем расстояние между двумя игроками
             distance = self.mediator.get(
                 self.TRIGGERS['COUNT_DISTANCE'],
@@ -69,19 +74,22 @@ class ChatManager(BaseManager):
                     if userSid['token'] == userCoord['token']:
                         self.subscribeRoom(userSid['sid'], room)
         # отправляем сообщение всем в комнате
-        await self.sendMessage(sid, data)
+        await self.sio.emit('sendMessage', data, room)
         # удаляем всех подписчиков из комнаты
         for user in self.__usersSid:
-            self.exitRoom(user['sid'], room)
-
+            self.unsubscribeRoom(user['sid'], room)
 
     # подписаться на комнату
     def subscribeRoom(self, sid, room):
         self.sio.enter_room(sid, room)
 
     # отписаться от комнаты
-    def exitRoom(self, sid, room):
+    def unsubscribeRoom(self, sid, room):
         self.sio.leave_room(sid, room)
+
+    # сохранить сообщение в базу данных
+    def saveMessage(self, name, room, message):
+        self.db.insertMessage(name, room, message)
 
     # добавить пользователя в список подключённых
     def addUserOnline(self, data):
