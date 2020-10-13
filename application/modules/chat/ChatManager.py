@@ -51,6 +51,8 @@ class ChatManager(BaseManager):
             await self.sio.emit('sendMessage', data, data['room'])
         else:
             await self.sio.emit('sendMessage', data)
+        # сохранить сообщение в бд
+        self.saveMessage(data)
 
     # отправить сообщение в echoChat
     async def sendMessageToEchoChat(self, sid, data):
@@ -88,8 +90,14 @@ class ChatManager(BaseManager):
         self.sio.leave_room(sid, room)
 
     # сохранить сообщение в базу данных
-    def saveMessage(self, name, room, message):
-        self.db.insertMessage(name, room, message)
+    def saveMessage(self, data):
+        if data['message'] and data['token'] and data['room']:
+            user = self.mediator.get(
+                self.TRIGGERS['GET_USER_BY_TOKEN'],
+                dict(token=data['token'])
+            )
+            if user:
+                self.db.insertMessage(data['message'], user['id'], data['room'])
 
     # добавить пользователя в список подключённых
     def addUserOnline(self, data):

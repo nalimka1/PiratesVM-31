@@ -118,8 +118,8 @@ class DB:
         self.connect.commit()
         return True
 
-    def insertMessage(self, name, room, message):
-        query = "INSERT INTO messages (name, room, message, time) VALUES (%s, %s, %s, now())"
-        self.cursor.execute(query, (name, room, message))
+    def insertMessage(self, message, userId, room):
+        query = "INSERT INTO messages (message, userId, room, time) VALUES (%s, %s, %s, now())"
+        self.cursor.execute(query, (message, userId, room))
         self.connect.commit()
         return True
