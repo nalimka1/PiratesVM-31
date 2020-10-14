@@ -5,8 +5,8 @@ from application.modules.BaseManager import BaseManager
 
 
 class UserManager(BaseManager):
-    def __init__(self, db, mediator, sio):
-        super().__init__(db, mediator, sio)
+    def __init__(self, db, mediator, sio, MESSAGES):
+        super().__init__(db, mediator, sio, MESSAGES)
         # регистрируем триггеры
         self.mediator.set(self.TRIGGERS['GET_USER_BY_TOKEN'], self.__getUserByToken)
         self.mediator.set(self.TRIGGERS['GET_USER_BY_LOGIN'], self.__getUserByLogin)
@@ -14,8 +14,9 @@ class UserManager(BaseManager):
         # регистрируем события
         self.mediator.subscribe(self.EVENTS['INSERT_USER'], self.__insertUser)
         self.mediator.subscribe(self.EVENTS['UPDATE_TOKEN_BY_LOGIN'], self.__updateTokenByLogin)
-        self.sio.on('userLogin', self.auth)
-        self.sio.on('userSignup', self.registration)
+        self.sio.on(self.MESSAGES['USER_LOGIN'], self.auth)
+        self.sio.on(self.MESSAGES['USER_LOGOUT'], self.logout)
+        self.sio.on(self.MESSAGES['USER_SIGNUP'], self.registration)
 
     def __generateToken(self, login):
         if login:
@@ -54,8 +55,7 @@ class UserManager(BaseManager):
             return self.db.updateTokenByLogin(data['login'], data['token'])
         return None
 
-    def registration(self, sio, data):
-        print(data)
+    async def registration(self, sio, data):
         name = data['login']
         login = data['login']
         password = data['hash']
@@ -65,13 +65,13 @@ class UserManager(BaseManager):
         else:
             token = self.__generateToken(login)
             self.mediator.call(self.EVENTS['INSERT_USER'], dict(name=name, login=login, password=password, token=token))
+            await self.sio.emit(self.MESSAGES['USER_SIGNUP'], dict(token=token), room=sio)
             return True
 
     async def auth(self, sio, data):
         login = data['login']
         hash = data['hash']
         rnd = data['random']
-        print(data)
         if login and hash and rnd:
             hashDB = self.mediator.get(self.TRIGGERS['GET_HASH_BY_LOGIN'], dict(login=login))
             if self.__generateHash(hashDB, str(rnd)) == hash:
@@ -79,16 +79,18 @@ class UserManager(BaseManager):
                 self.mediator.call(self.EVENTS['UPDATE_TOKEN_BY_LOGIN'], dict(login=login, token=token))
                 # добавляем пользователя в список пользователей онлайн
                 self.mediator.call(self.EVENTS['ADD_USER_ONLINE'], dict(token=token))
-                await self.sio.emit('userLogin', True)
+                await self.sio.emit(self.MESSAGES['USER_LOGIN'], dict(token=token), room=sio)
                 return True
         return False
 
-    def logout(self, token):
+    def logout(self, sio, data):
+        token = data['token']
         user = self.mediator.get(self.TRIGGERS['GET_USER_BY_TOKEN'],  dict(token=token))
         # удаляем пользователя из списка пользователей онлайн
         self.mediator.call(self.EVENTS['DELETE_USER_ONLINE'], dict(token=token))
         token = 'NULL'
         if user:
             self.mediator.call(self.EVENTS['UPDATE_TOKEN_BY_LOGIN'], dict(login=user['login'], token=token))
+            await self.sio.emit(self.MESSAGES['USER_LOGOUT'], True, room=sio)
             return True
         return False

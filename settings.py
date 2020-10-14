@@ -28,5 +28,13 @@ SETTINGS = {
             'GET_HASH_BY_LOGIN': 'GET_HASH_BY_LOGIN',
             'COUNT_DISTANCE': 'COUNT_DISTANCE'
         }
-    }
+    },
+    'MESSAGES': {
+        'USER_LOGIN': 'USER_LOGIN',
+        'USER_LOGOUT': 'USER_LOGOUT',
+        'USER_SIGNUP': 'USER_SIGNUP',
+        'SEND_MESSAGE': 'CHAT/SEND_MESSAGE',
+        'SUBSCRIBE_ROOM': 'CHAT/SUBSCRIBE_ROOM',
+        'UNSUBSCRIBE_ROOM': 'CHAT/UNSUBSCRIBE_ROOM',
+    },
 }

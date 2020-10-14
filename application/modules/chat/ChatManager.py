@@ -2,8 +2,8 @@ from application.modules.BaseManager import BaseManager
 
 
 class ChatManager(BaseManager):
-    def __init__(self, db, mediator, sio, CHAT):
-        super().__init__(db, mediator, sio)
+    def __init__(self, db, mediator, sio, MESSAGES, CHAT):
+        super().__init__(db, mediator, sio, MESSAGES)
         self.__CHAT = CHAT
         # массив из словарей dict(token=token, sid=sid)
         self.__usersSid = []
@@ -11,7 +11,6 @@ class ChatManager(BaseManager):
         # TODO
         # 1. ПРИДУМАТЬ ГДЕ ХРАНИТЬ КООРДИНАТЫ ЮЗЕРОВ!!!
         # (Когда измените место хранения коородинат исправте метод sendMessageToEchoChat)
-        # 2. Доработать метод saveMessage и создать таблицу messages в БД
 
         # В массиве usersCoord должны храняться словари dict(token=token, point=Point(x, y))
         self.usersCoord = []
@@ -28,31 +27,32 @@ class ChatManager(BaseManager):
         def disconnect(sid):
             print('disconnect ', sid)
 
-        @sio.on('sendMessage')
+        @sio.on(self.MESSAGES['SEND_MESSAGE'])
         async def onSendMessage(sid, data):
             if 'token' in data:
                 await self.sendMessage(sid, data)
 
-        @sio.on('subscribeRoom')
+        @sio.on(self.MESSAGES['SUBSCRIBE_ROOM'])
         def onSubscribeRoom(sid, data):
             if 'token' in data and 'room' in data:
                 self.subscribeRoom(sid, data['room'])
 
-        @sio.on('unsubscribeRoom')
+        @sio.on(self.MESSAGES['UNSUBSCRIBE_ROOM'])
         def onUnsubscribeRoom(sid, data):
             if 'token' in data and 'room' in data:
                 self.unsubscribeRoom(sid, data['room'])
 
     # отпрваить сообщение
     async def sendMessage(self, sid, data):
+        user = self.mediator.get(self.TRIGGERS['GET_USER_BY_TOKEN'], data)
         if 'room' in data and data['room'] == self.__CHAT['ROOMS']['ECHO']:
             await self.sendMessageToEchoChat(sid, data)
         elif 'room' in data:
-            await self.sio.emit('sendMessage', data, data['room'])
+            await self.sio.emit(self.MESSAGES['SEND_MESSAGE'], data, data['room'])
         else:
-            await self.sio.emit('sendMessage', data['message'])
+            await self.sio.emit(self.MESSAGES['SEND_MESSAGE'], dict(name=user['name'], message=data['message']))
         # сохранить сообщение в бд
-        # self.saveMessage(data)
+        self.saveMessage(data)
 
     # отправить сообщение в echoChat
     async def sendMessageToEchoChat(self, sid, data):
@@ -91,13 +91,14 @@ class ChatManager(BaseManager):
 
     # сохранить сообщение в базу данных
     def saveMessage(self, data):
-        if data['message'] and data['token'] and data['room']:
+        if 'message' in data and 'token' in data:
             user = self.mediator.get(
                 self.TRIGGERS['GET_USER_BY_TOKEN'],
                 dict(token=data['token'])
             )
             if user:
-                self.db.insertMessage(data['message'], user['id'], data['room'])
+                room = ('room' in data and data['room']) or 'common'
+                self.db.insertMessage(data['message'], user['id'], room)
 
     # добавить пользователя в список подключённых
     def addUserOnline(self, data):
