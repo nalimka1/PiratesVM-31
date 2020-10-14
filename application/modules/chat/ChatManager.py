@@ -30,29 +30,29 @@ class ChatManager(BaseManager):
 
         @sio.on('sendMessage')
         async def onSendMessage(sid, data):
-            if data['token']:
+            if 'token' in data:
                 await self.sendMessage(sid, data)
 
         @sio.on('subscribeRoom')
         def onSubscribeRoom(sid, data):
-            if data['token']:
+            if 'token' in data and 'room' in data:
                 self.subscribeRoom(sid, data['room'])
 
         @sio.on('unsubscribeRoom')
         def onUnsubscribeRoom(sid, data):
-            if data['token']:
+            if 'token' in data and 'room' in data:
                 self.unsubscribeRoom(sid, data['room'])
 
     # отпрваить сообщение
     async def sendMessage(self, sid, data):
-        if data['room'] == self.__CHAT['ROOMS']['ECHO']:
+        if 'room' in data and data['room'] == self.__CHAT['ROOMS']['ECHO']:
             await self.sendMessageToEchoChat(sid, data)
-        elif data['room']:
+        elif 'room' in data:
             await self.sio.emit('sendMessage', data, data['room'])
         else:
-            await self.sio.emit('sendMessage', data)
+            await self.sio.emit('sendMessage', data['message'])
         # сохранить сообщение в бд
-        self.saveMessage(data)
+        # self.saveMessage(data)
 
     # отправить сообщение в echoChat
     async def sendMessageToEchoChat(self, sid, data):
@@ -101,13 +101,13 @@ class ChatManager(BaseManager):
 
     # добавить пользователя в список подключённых
     def addUserOnline(self, data):
-        if data and data['token']:
+        if data and 'token' in data:
             self.__usersSid.append(dict(token=data['token'], sid=self.__sid))
             print(self.__usersSid)
 
     # удалить пользователя из списка подключённых
     def deleteUserOnline(self, data):
-        if data and data['token']:
+        if data and 'token' in data:
             for i in range(len(self.__usersSid)):
                 if self.__usersSid[i].token == data['token']:
                     del self.__usersSid[i]

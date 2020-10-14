@@ -17,15 +17,14 @@ from application.socket.Socket import Socket
 db = DB(SETTINGS['DB'])
 mediator = Mediator(SETTINGS['MEDIATOR']['EVENTS'], SETTINGS['MEDIATOR']['TRIGGERS'])
 
-sio = socketio.AsyncServer()
+sio = socketio.AsyncServer(cors_allowed_origins="*")
 app = web.Application()
 sio.attach(app)
 Router(app, web, mediator)
 Logic(mediator)
 
-um = UserManager(db, mediator)
-# um.auth('vasya', '123', '1')
+UserManager(db, mediator, sio)
 ChatManager(db, mediator, sio, SETTINGS['CHAT'])
 
 
-web.run_app(app)
+web.run_app(app, port=9000)

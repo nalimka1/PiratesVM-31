@@ -1,20 +1,19 @@
 import hashlib
 import random
 
+from application.modules.BaseManager import BaseManager
 
-class UserManager:
-    def __init__(self, db, mediator):
-        self.__db = db
-        self.__mediator = mediator
-        self.TRIGGERS = self.__mediator.getTriggers()
-        self.EVENTS = self.__mediator.getEvents()
+
+class UserManager(BaseManager):
+    def __init__(self, db, mediator, sio):
+        super().__init__(db, mediator, sio)
         # регистрируем триггеры
-        self.__mediator.set(self.TRIGGERS['GET_USER_BY_TOKEN'], self.__getUserByToken)
-        self.__mediator.set(self.TRIGGERS['GET_USER_BY_LOGIN'], self.__getUserByLogin)
-        self.__mediator.set(self.TRIGGERS['GET_HASH_BY_LOGIN'], self.__getHashByLogin)
+        self.mediator.set(self.TRIGGERS['GET_USER_BY_TOKEN'], self.__getUserByToken)
+        self.mediator.set(self.TRIGGERS['GET_USER_BY_LOGIN'], self.__getUserByLogin)
+        self.mediator.set(self.TRIGGERS['GET_HASH_BY_LOGIN'], self.__getHashByLogin)
         # регистрируем события
-        self.__mediator.subscribe(self.EVENTS['INSERT_USER'], self.__insertUser)
-        self.__mediator.subscribe(self.EVENTS['UPDATE_TOKEN_BY_LOGIN'], self.__updateTokenByLogin)
+        self.mediator.subscribe(self.EVENTS['INSERT_USER'], self.__insertUser)
+        self.mediator.subscribe(self.EVENTS['UPDATE_TOKEN_BY_LOGIN'], self.__updateTokenByLogin)
 
     def __generateToken(self, login):
         if login:
@@ -52,32 +51,33 @@ class UserManager:
         return None
 
     def registration(self, name, login, password):
-        user = self.__mediator.get(self.TRIGGERS['GET_USER_BY_LOGIN'], dict(login=login))
+        user = self.mediator.get(self.TRIGGERS['GET_USER_BY_LOGIN'], dict(login=login))
         if user or not name or not login or not password:
             return None
         else:
             password = self.__generateHash(password)
             token = self.__generateToken(login)
-            self.__mediator.call(self.EVENTS['INSERT_USER'], dict(name=name, login=login, password=password, token=token))
+            self.mediator.call(self.EVENTS['INSERT_USER'], dict(name=name, login=login, password=password, token=token))
             return True
 
     def auth(self, login, hash, rnd):
+        print(login, hash, rnd)
         if login and hash and rnd:
-            hashDB = self.__mediator.get(self.TRIGGERS['GET_HASH_BY_LOGIN'], dict(login=login))
+            hashDB = self.mediator.get(self.TRIGGERS['GET_HASH_BY_LOGIN'], dict(login=login))
             if self.__generateHash(hashDB, str(rnd)) == hash:
                 token = self.__generateToken(login)
-                self.__mediator.call(self.EVENTS['UPDATE_TOKEN_BY_LOGIN'], dict(login=login, token=token))
+                self.mediator.call(self.EVENTS['UPDATE_TOKEN_BY_LOGIN'], dict(login=login, token=token))
                 # добавляем пользователя в список пользователей онлайн
-                self.__mediator.call(self.EVENTS['ADD_USER_ONLINE'], dict(token=token))
+                self.mediator.call(self.EVENTS['ADD_USER_ONLINE'], dict(token=token))
                 return True
         return False
 
     def logout(self, token):
-        user = self.__mediator.get(self.TRIGGERS['GET_USER_BY_TOKEN'],  dict(token=token))
+        user = self.mediator.get(self.TRIGGERS['GET_USER_BY_TOKEN'],  dict(token=token))
         # удаляем пользователя из списка пользователей онлайн
-        self.__mediator.call(self.EVENTS['DELETE_USER_ONLINE'], dict(token=token))
+        self.mediator.call(self.EVENTS['DELETE_USER_ONLINE'], dict(token=token))
         token = 'NULL'
         if user:
-            self.__mediator.call(self.EVENTS['UPDATE_TOKEN_BY_LOGIN'], dict(login=user['login'], token=token))
+            self.mediator.call(self.EVENTS['UPDATE_TOKEN_BY_LOGIN'], dict(login=user['login'], token=token))
             return True
         return False
