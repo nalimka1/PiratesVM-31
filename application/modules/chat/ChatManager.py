@@ -52,7 +52,7 @@ class ChatManager(BaseManager):
         else:
             await self.sio.emit('sendMessage', data)
         # сохранить сообщение в бд
-        self.saveMessage(data)
+        # self.saveMessage(data)
 
     # отправить сообщение в echoChat
     async def sendMessageToEchoChat(self, sid, data):

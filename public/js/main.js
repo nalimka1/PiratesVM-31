@@ -1,15 +1,17 @@
 window.onload = function () {
     const socket = io('localhost:8080');
+    var chat = null;
 
     function sendMessage() {
         const token = 'TOKEN!!!';
         const message = document.getElementById('message').value;
-        socket.emit('sendMessage', { token, message });
+        socket.emit('sendMessage', { token, message, room: chat });
     }
 
     function subscribeRoom(room) {
         const token = 'TOKEN!!!';
-        socket.emit('subscribeChat', { token, room });
+        chat = room;
+        socket.emit('subscribeRoom', { token, room });
     }
 
     function onSendMessage(data) {
