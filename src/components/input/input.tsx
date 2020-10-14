@@ -11,6 +11,7 @@ const StyledInput = styled.input`
   font-size: 2.2rem;
   padding: 20px 8px;
   min-width: 280px;
+  width: 100%;
   margin: 8px;
   color: ${({ theme }) => theme.fg};
   background: transparent;
@@ -42,6 +43,7 @@ export interface InputProps {
   className?: string;
   label?: string;
   error?: string;
+  ref?: React.Ref<any>;
 }
 
 const Input: React.FC<InputProps & React.InputHTMLAttributes<HTMLInputElement>> = ({
@@ -49,6 +51,7 @@ const Input: React.FC<InputProps & React.InputHTMLAttributes<HTMLInputElement>> 
   className = '',
   label = '',
   error = '',
+  ref = null,
   ...attrs
 }) => {
   return (
@@ -60,6 +63,7 @@ const Input: React.FC<InputProps & React.InputHTMLAttributes<HTMLInputElement>> 
         name={id}
         id={id}
         className={className}
+        ref={ref}
         {...attrs}
       />
       {error

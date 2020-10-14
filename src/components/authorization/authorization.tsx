@@ -36,8 +36,8 @@ const Authorization = () => {
   const [form, setForm] = useState({ login: '', password: '' });
 
   useEffect(() => {
-    socket.on(SOCKET_EVENTS.USER_LOGIN, (data) => console.log(data))
-    socket.on(SOCKET_EVENTS.USER_SIGNUP, (data) => console.log(data))
+    socket.on(SOCKET_EVENTS.USER_LOGIN, ({ token }) => login(token))
+    socket.on(SOCKET_EVENTS.USER_SIGNUP, ({ token }) => login(token))
   }, []);
 
   const isValidPassword = () => {
@@ -53,7 +53,7 @@ const Authorization = () => {
     });
   };
 
-  const handleLogin = async (event) => {
+  const handleLogin = (event) => {
     event.preventDefault();
     if (isValidPassword()) {
       const random = Math.random();
@@ -62,7 +62,7 @@ const Authorization = () => {
     }
   };
 
-  const handleSignup = async (event) => {
+  const handleSignup = (event) => {
     event.preventDefault();
     const { login } = form;
     if (login && isValidPassword()) {

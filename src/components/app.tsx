@@ -3,9 +3,10 @@ import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-d
 import AuthContext from '../contexts/auth.context';
 import Authorization from './authorization/authorization';
 import useAuth from '../hooks/auth.hook';
-import { AUTH_URL } from '../constants/url.constants';
+import { AUTH_URL, LOBBY_URL } from '../constants/url.constants';
 import { ThemeProvider, DefaultTheme } from 'styled-components';
 import ErrorBoundary from './error-boundary/error-boundary';
+import Lobby from './lobby/lobby';
 
 const theme: DefaultTheme = {
   fg: '#ffe190',
@@ -23,10 +24,13 @@ const App = () => {
       <ThemeProvider theme={theme}>
         <ErrorBoundary>
           <AuthContext.Provider value={auth}>
-            {!isAuth && <Redirect to={AUTH_URL}/>}
+            {!isAuth ? <Redirect to={AUTH_URL}/> : <Redirect to={LOBBY_URL} />}
             <Switch>
-              <Route>
-                <Authorization/>
+              <Route path={AUTH_URL}>
+                <Authorization />
+              </Route>
+              <Route path={LOBBY_URL}>
+                <Lobby />
               </Route>
             </Switch>
           </AuthContext.Provider>
