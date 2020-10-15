@@ -4,9 +4,7 @@ import socketio
 from settings import SETTINGS
 from application.modules.db.DB import DB
 from application.modules.mediator.Mediator import Mediator
-# user
 from application.modules.user.UserManager import UserManager
-# chat
 from application.modules.chat.ChatManager import ChatManager
 # audio ?
 # pirates
@@ -25,6 +23,5 @@ Logic(mediator)
 
 UserManager(db, mediator, sio, SETTINGS['MESSAGES'], SETTINGS['ERRORS'])
 ChatManager(db, mediator, sio, SETTINGS['MESSAGES'], SETTINGS['CHAT'])
-
 
 web.run_app(app, port=9000)
