@@ -21,7 +21,7 @@ sio.attach(app)
 Router(app, web, mediator)
 Logic(mediator)
 
-UserManager(db, mediator, sio, SETTINGS['MESSAGES'], SETTINGS['ERRORS'])
+UserManager(db, mediator, sio, SETTINGS['MESSAGES'])
 ChatManager(db, mediator, sio, SETTINGS['MESSAGES'], SETTINGS['CHAT'])
 
 web.run_app(app, port=9000)
