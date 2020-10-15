@@ -12,12 +12,18 @@ SETTINGS = {
             'ECHO': 'ECHO'
         }
     },
+    'ERRORS': {
+        'LOGIN_ERROR': 'LOGIN_ERROR',
+        'LOGOUT_ERROR': 'LOGOUT_ERROR',
+        'REGISTRATION_ERROR': 'REGISTRATION_ERROR'
+    },
     'MEDIATOR': {
         'EVENTS': {
             'INSERT_USER': 'INSERT_USER',
             'ADD_USER_ONLINE': 'ADD_USER_ONLINE',
             'DELETE_USER_ONLINE': 'DELETE_USER_ONLINE',
             'UPDATE_TOKEN_BY_LOGIN': 'UPDATE_TOKEN_BY_LOGIN',
+            'AUTH': 'AUTH',
             'LOGOUT': 'LOGOUT'
         },
         'TRIGGERS': {
@@ -26,6 +32,7 @@ SETTINGS = {
             'GET_USER_BY_TOKEN': 'GET_USER_BY_TOKEN',
             'GET_USER_BY_LOGIN': 'GET_USER_BY_LOGIN',
             'GET_HASH_BY_LOGIN': 'GET_HASH_BY_LOGIN',
+            'GET_TOKEN_BY_SID': 'GET_TOKEN_BY_SID',
             'COUNT_DISTANCE': 'COUNT_DISTANCE'
         }
     },

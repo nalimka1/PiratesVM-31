@@ -6,7 +6,7 @@ class ChatManager(BaseManager):
         super().__init__(db, mediator, sio, MESSAGES)
         self.__CHAT = CHAT
         # массив из словарей dict(token=token, sid=sid)
-        self.__usersSid = []
+        self.__usersSid = {}
         self.__sid = ''
         # TODO
         # 1. ПРИДУМАТЬ ГДЕ ХРАНИТЬ КООРДИНАТЫ ЮЗЕРОВ!!!
@@ -17,6 +17,8 @@ class ChatManager(BaseManager):
 
         self.mediator.subscribe(self.EVENTS['ADD_USER_ONLINE'], self.addUserOnline)
         self.mediator.subscribe(self.EVENTS['DELETE_USER_ONLINE'], self.deleteUserOnline)
+
+        self.mediator.set(self.TRIGGERS['GET_TOKEN_BY_SID'], self.getTokenBySid)
 
         @sio.event
         def connect(sid, environ):
@@ -41,6 +43,12 @@ class ChatManager(BaseManager):
         def onUnsubscribeRoom(sid, data):
             if 'token' in data and 'room' in data:
                 self.unsubscribeRoom(sid, data['room'])
+
+    def getTokenBySid(self, data):
+        for token, value in self.__usersSid.items():
+            if value == data['sid']:
+                return token
+        return None
 
     # отпрваить сообщение
     async def sendMessage(self, sid, data):
@@ -102,14 +110,15 @@ class ChatManager(BaseManager):
 
     # добавить пользователя в список подключённых
     def addUserOnline(self, data):
-        if data and 'token' in data:
-            self.__usersSid.append(dict(token=data['token'], sid=self.__sid))
+        token, sid, coord = data.values()
+        if token and sid and coord:
+            self.__usersSid[token] = dict(sid=sid, coord=coord)
             print(self.__usersSid)
 
     # удалить пользователя из списка подключённых
     def deleteUserOnline(self, data):
-        if data and 'token' in data:
-            for i in range(len(self.__usersSid)):
-                if self.__usersSid[i].token == data['token']:
-                    del self.__usersSid[i]
-            print(self.__usersSid)
+        token = data['token']
+        if token:
+            for key in self.__usersSid:
+                if key == token:
+                    del self.__usersSid[token]

@@ -23,7 +23,7 @@ sio.attach(app)
 Router(app, web, mediator)
 Logic(mediator)
 
-UserManager(db, mediator, sio, SETTINGS['MESSAGES'])
+UserManager(db, mediator, sio, SETTINGS['MESSAGES'], SETTINGS['ERRORS'])
 ChatManager(db, mediator, sio, SETTINGS['MESSAGES'], SETTINGS['CHAT'])
 
 

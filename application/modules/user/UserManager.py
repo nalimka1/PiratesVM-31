@@ -91,6 +91,5 @@ class UserManager(BaseManager):
         token = 'NULL'
         if user:
             self.mediator.call(self.EVENTS['UPDATE_TOKEN_BY_LOGIN'], dict(login=user['login'], token=token))
-            await self.sio.emit(self.MESSAGES['USER_LOGOUT'], True, room=sio)
             return True
         return False
