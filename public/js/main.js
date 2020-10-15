@@ -1,21 +1,22 @@
 window.onload = function () {
     const socket = io('localhost:8080');
+    var chat = null;
 
     function sendMessage() {
         const token = 'TOKEN!!!';
-        const message = 'Azaza!!!';
-        socket.emit('sendMessage', { token, message });
+        const message = document.getElementById('message').value;
+        socket.emit('sendMessage', { token, message, room: chat });
     }
 
     function subscribeRoom(room) {
         const token = 'TOKEN!!!';
-        socket.emit('subscribeChat', { token, room });
+        chat = room;
+        socket.emit('subscribeRoom', { token, room });
     }
 
     function onSendMessage(data) {
         console.log(data);
     }
-
     document.getElementById('sendMessage').addEventListener('click', sendMessage);
     document.getElementById('subscribeChat1').addEventListener('click', () =>
         subscribeRoom('subscribeChat1')
