@@ -24,7 +24,6 @@ class UserManager(BaseManager):
             return self.__generateHash(login, str(randomInt))
 
     def __generateHash(self, str1, str2=""):
-        print(str1, str2)
         if type(str1) == str and type(str2) == str:
             return hashlib.md5((str1 + str2).encode("utf-8")).hexdigest()
         return None
@@ -40,7 +39,6 @@ class UserManager(BaseManager):
         return None
 
     def __getHashByLogin(self, data):
-        print(data)
         if data:
             return self.db.getHashByLogin(data['login'])
         return None
@@ -78,7 +76,7 @@ class UserManager(BaseManager):
                 token = self.__generateToken(login)
                 self.mediator.call(self.EVENTS['UPDATE_TOKEN_BY_LOGIN'], dict(login=login, token=token))
                 # добавляем пользователя в список пользователей онлайн
-                self.mediator.call(self.EVENTS['ADD_USER_ONLINE'], dict(token=token))
+                self.mediator.call(self.EVENTS['ADD_USER_ONLINE'], dict(token=token, sid=sio, coord=None))
                 await self.sio.emit(self.MESSAGES['USER_LOGIN'], dict(token=token), room=sio)
                 return True
         return False
