@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import Message, { MessageInterface } from './message/message';
+import Scrollbar from '../scrollbar/scrollbar';
 
 const StyledMessages = styled.div`
   display: flex;
@@ -9,7 +10,6 @@ const StyledMessages = styled.div`
   color: ${({ theme }) => theme.fg};
   width: 100%;
   height: 100%;
-  overflow: auto;
 `;
 
 export interface MessagesInterface {
@@ -29,8 +29,10 @@ const Messages: React.FC<MessagesInterface> = ({
 
   return (
     <StyledMessages>
-      {messages.map(({ name, message }, index) => <Message key={index} name={name} message={message}/>)}
-      <div ref={messagesEndRef} />
+      <Scrollbar>
+        {messages.map(({ name, message }, index) => <Message key={index} name={name} message={message}/>)}
+        <div ref={messagesEndRef} />
+      </Scrollbar>
     </StyledMessages>
   );
 };
