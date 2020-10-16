@@ -24,14 +24,20 @@ const App = () => {
       <ThemeProvider theme={theme}>
         <ErrorBoundary>
           <AuthContext.Provider value={auth}>
-            {!isAuth ? <Redirect to={AUTH_URL}/> : <Redirect to={LOBBY_URL} />}
             <Switch>
-              <Route path={AUTH_URL}>
-                <Authorization />
-              </Route>
-              <Route path={LOBBY_URL}>
-                <Lobby />
-              </Route>
+              {isAuth
+                ? (
+                  <>
+                    <Route path={LOBBY_URL} exact component={Lobby} />
+                    <Redirect to={LOBBY_URL} />
+                  </>
+                )
+                : (
+                  <>
+                    <Route path={AUTH_URL} exact component={Authorization} />
+                    <Redirect to={AUTH_URL} />
+                  </>
+                )}
             </Switch>
           </AuthContext.Provider>
         </ErrorBoundary>
