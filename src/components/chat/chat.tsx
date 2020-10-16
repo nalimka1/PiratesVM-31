@@ -1,12 +1,14 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import Button from '../button/button';
 import Input from '../input/input';
-import Messages, { MessagesInterface } from '../messages/messages';
+import Messages from '../messages/messages';
 import AuthContext from '../../contexts/auth.context';
+import { addMessages, sendMessage } from '../../redux/actions/chat.actions';
+import { selectMessages } from '../../redux/selectors/chat.selectors';
 import socket from '../../helpers/socket';
 import { SOCKET_EVENTS } from '../../constants/socket.constants';
-import { MessageInterface } from '../messages/message/message';
 
 const StyledChat = styled.div`
   padding: 20px 10px;
@@ -26,16 +28,16 @@ const StyledForm = styled.form`
 `;
 
 const Chat = () => {
-  const messageRef = useRef<HTMLInputElement>(null);
-  const [messages, setMessages] = useState<MessagesInterface['messages']>([]);
   const [message, setMessage] = useState('');
   const { token } = useContext(AuthContext);
+  const messages = useSelector(selectMessages);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    const subscribeToMessages = (message: MessageInterface) => setMessages(messages => [...messages, message]);
+    const subscribeToMessages = (newMessages) => dispatch(addMessages(newMessages));
     socket.on(SOCKET_EVENTS.SEND_MESSAGE, subscribeToMessages);
     return () => {
-      socket.removeListener(SOCKET_EVENTS.SEND_MESSAGE, subscribeToMessages)
+      socket.off(SOCKET_EVENTS.SEND_MESSAGE, subscribeToMessages);
     };
   }, []);
 
@@ -44,11 +46,9 @@ const Chat = () => {
   };
 
   const handleSendMessage = () => {
-    if (message.trim().length) {
-      socket.emit(SOCKET_EVENTS.SEND_MESSAGE, { token, message }, () => {
-        setMessage('');
-        messageRef.current?.focus();
-      });
+    if (token && message.trim().length) {
+      setMessage('');
+      dispatch(sendMessage(socket, { token, message }));
     }
   };
 
