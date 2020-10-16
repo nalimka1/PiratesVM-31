@@ -12,6 +12,7 @@ const theme: DefaultTheme = {
   fg: '#ffe190',
   fgError: '#d4eee8',
   bg: '#237773',
+  bgAdditional: '#1d3e3c',
   bgActive: '#6fb38e',
 };
 
