@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import Message, { MessageInterface } from './message/message';
 import Scrollbar from '../scrollbar/scrollbar';
@@ -18,23 +18,12 @@ export interface MessagesInterface {
 
 const Messages: React.FC<MessagesInterface> = ({
   messages,
-}) => {
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({
-      behavior: 'smooth',
-    });
-  }, [messages]);
-
-  return (
-    <StyledMessages>
-      <Scrollbar>
-        {messages.map(({ name, message }, index) => <Message key={index} name={name} message={message}/>)}
-        <div ref={messagesEndRef} />
-      </Scrollbar>
-    </StyledMessages>
-  );
-};
+}) => (
+  <StyledMessages>
+    <Scrollbar>
+      {messages.map(({ name, message }, index) => <Message key={index} name={name} message={message}/>)}
+    </Scrollbar>
+  </StyledMessages>
+);
 
 export default Messages;

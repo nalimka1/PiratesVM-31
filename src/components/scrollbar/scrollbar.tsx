@@ -47,16 +47,29 @@ const ScrollThumb = styled.div`
 
 interface ScrollbarProps {
   children: React.ReactNode;
+  scrollToBottom?: boolean;
 }
 
 const SCROLL_BOX_MIN_HEIGHT = 20;
 
-const Scrollbar: React.FC<ScrollbarProps> = ({ children }) => {
+const Scrollbar: React.FC<ScrollbarProps> = ({
+  children,
+  scrollToBottom = true,
+}) => {
   const scrollHostRef = useRef<HTMLDivElement>(null);
   const [scrollBoxHeight, setScrollBoxHeight] = useState(SCROLL_BOX_MIN_HEIGHT);
   const [scrollBoxTop, setScrollBoxTop] = useState(0);
   const [lastScrollThumbPosition, setScrollThumbPosition] = useState(0);
   const [isDragging, setDragging] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (scrollToBottom) {
+      messagesEndRef.current?.scrollIntoView({
+        behavior: 'smooth',
+      });
+    }
+  }, [children, scrollToBottom]);
 
   const handleDocumentMouseUp = useCallback((event: MouseEvent) => {
     if (isDragging) {
@@ -139,6 +152,7 @@ const Scrollbar: React.FC<ScrollbarProps> = ({ children }) => {
     <ScrollHostContainer>
       <ScrollHost ref={scrollHostRef}>
         {children}
+        <div ref={messagesEndRef} />
       </ScrollHost>
       <StyledScrollBar>
         <ScrollThumb
