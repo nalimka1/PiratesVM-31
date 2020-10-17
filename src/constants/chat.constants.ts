@@ -1,5 +1,7 @@
 import { MessageInterface } from '../components/messages/message/message';
 
+export const MAX_CHAT_INPUT_LENGTH = 300;
+
 export interface ChatStateInterface {
   messages: MessageInterface[];
 }

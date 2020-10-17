@@ -2,13 +2,15 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import Button from '../button/button';
-import Input from '../input/input';
+import Textarea from '../textarea/textarea';
 import Messages from '../messages/messages';
 import AuthContext from '../../contexts/auth.context';
 import { addMessages, sendMessage } from '../../redux/actions/chat.actions';
 import { selectMessages } from '../../redux/selectors/chat.selectors';
 import socket from '../../helpers/socket';
 import { SOCKET_EVENTS } from '../../constants/socket.constants';
+import { eventTypes } from '../../constants/event-types';
+import { MAX_CHAT_INPUT_LENGTH } from '../../constants/chat.constants';
 
 const StyledChat = styled.div`
   padding: 20px 10px;
@@ -41,7 +43,7 @@ const Chat = () => {
     };
   }, []);
 
-  const handleInputChange = ({ target }: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = ({ target }: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMessage(target.value);
   };
 
@@ -54,18 +56,24 @@ const Chat = () => {
 
   const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => event.preventDefault();
 
+  const handleTextareaKeyUp = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === eventTypes.Enter) {
+      handleSendMessage();
+    }
+  };
+
   return (
     <StyledChat>
       <Messages messages={messages} />
       <StyledForm onSubmit={handleFormSubmit} className="send-message">
-        <Input
+        <Textarea
           id="send-message"
-          type="text"
           name="message"
           value={message}
+          onKeyUp={handleTextareaKeyUp}
           onChange={handleInputChange}
+          maxLength={MAX_CHAT_INPUT_LENGTH}
           placeholder="Введите сообщение"
-          autoComplete="off"
         />
         <Button type="submit" onClick={handleSendMessage}>{'>'}</Button>
       </StyledForm>
