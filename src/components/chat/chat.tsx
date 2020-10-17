@@ -1,12 +1,16 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import Button from '../button/button';
-import Input from '../input/input';
-import Messages, { MessagesInterface } from '../messages/messages';
+import Textarea from '../textarea/textarea';
+import Messages from '../messages/messages';
 import AuthContext from '../../contexts/auth.context';
+import { addMessages, sendMessage } from '../../redux/actions/chat.actions';
+import { selectMessages } from '../../redux/selectors/chat.selectors';
 import socket from '../../helpers/socket';
 import { SOCKET_EVENTS } from '../../constants/socket.constants';
-import { MessageInterface } from '../messages/message/message';
+import { eventTypes } from '../../constants/event-types';
+import { MAX_CHAT_INPUT_LENGTH } from '../../constants/chat.constants';
 
 const StyledChat = styled.div`
   padding: 20px 10px;
@@ -26,46 +30,50 @@ const StyledForm = styled.form`
 `;
 
 const Chat = () => {
-  const messageRef = useRef<HTMLInputElement>(null);
-  const [messages, setMessages] = useState<MessagesInterface['messages']>([]);
   const [message, setMessage] = useState('');
   const { token } = useContext(AuthContext);
+  const messages = useSelector(selectMessages);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    const subscribeToMessages = (message: MessageInterface) => setMessages(messages => [...messages, message]);
+    const subscribeToMessages = (newMessages) => dispatch(addMessages(newMessages));
     socket.on(SOCKET_EVENTS.SEND_MESSAGE, subscribeToMessages);
     return () => {
-      socket.removeListener(SOCKET_EVENTS.SEND_MESSAGE, subscribeToMessages)
+      socket.off(SOCKET_EVENTS.SEND_MESSAGE, subscribeToMessages);
     };
   }, []);
 
-  const handleInputChange = ({ target }: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = ({ target }: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMessage(target.value);
   };
 
   const handleSendMessage = () => {
-    if (message.trim().length) {
-      socket.emit(SOCKET_EVENTS.SEND_MESSAGE, { token, message }, () => {
-        setMessage('');
-        messageRef.current?.focus();
-      });
+    if (token && message.trim().length) {
+      setMessage('');
+      dispatch(sendMessage(socket, { token, message }));
     }
   };
 
   const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => event.preventDefault();
 
+  const handleTextareaKeyUp = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === eventTypes.Enter) {
+      handleSendMessage();
+    }
+  };
+
   return (
     <StyledChat>
       <Messages messages={messages} />
       <StyledForm onSubmit={handleFormSubmit} className="send-message">
-        <Input
+        <Textarea
           id="send-message"
-          type="text"
           name="message"
           value={message}
+          onKeyUp={handleTextareaKeyUp}
           onChange={handleInputChange}
+          maxLength={MAX_CHAT_INPUT_LENGTH}
           placeholder="Введите сообщение"
-          autoComplete="off"
         />
         <Button type="submit" onClick={handleSendMessage}>{'>'}</Button>
       </StyledForm>
