@@ -6,6 +6,7 @@ from application.modules.db.DB import DB
 from application.modules.mediator.Mediator import Mediator
 from application.modules.user.UserManager import UserManager
 from application.modules.chat.ChatManager import ChatManager
+from application.modules.lobby.LobbyManager import LobbyManager
 # audio ?
 # pirates
 from application.modules.game.Logic import Logic
@@ -23,5 +24,10 @@ Logic(mediator)
 
 UserManager(db, mediator, sio, SETTINGS['MESSAGES'])
 ChatManager(db, mediator, sio, SETTINGS['MESSAGES'], SETTINGS['CHAT'])
+LobbyManager(
+    mediator=mediator,
+    sio=sio,
+    MESSAGES=SETTINGS['MESSAGES']
+)
 
 web.run_app(app, port=9000)

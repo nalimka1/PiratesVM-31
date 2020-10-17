@@ -1,5 +1,5 @@
 class BaseManager:
-    def __init__(self, db, mediator, sio, MESSAGES):
+    def __init__(self, db = None, mediator = None, sio = None, MESSAGES = None):
         self.db = db
         self.mediator = mediator
         self.sio = sio
