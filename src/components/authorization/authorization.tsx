@@ -9,6 +9,7 @@ import authBackground from '../../assets/auth.png';
 import { passwordReg } from '../../constants/authorization.constants';
 import socket from '../../helpers/socket';
 import { SOCKET_EVENTS } from '../../constants/socket.constants';
+import Tooltip from '../tooltip/tooltip';
 
 const Container = styled.div`
   display: flex;
@@ -87,18 +88,21 @@ const Authorization = () => {
           autoFocus
           onChange={handleChange}
         />
-        <Input
-          id="password"
-          type="password"
-          placeholder="Пароль"
-          name="password"
-          aria-label="password"
-          aria-describedby="password"
-          required
-          autoComplete="current-password"
-          onChange={handleChange}
-          onFocus={(event) => event.target.select()}
-        />
+        <Tooltip content="Ваш пароль должен быть от 2 символов, содержащий минимум 1 цифру и букву">
+          <Input
+            id="password"
+            type="password"
+            placeholder="Пароль"
+            name="password"
+            aria-label="password"
+            aria-describedby="password"
+            required
+            autoComplete="current-password"
+            onChange={handleChange}
+            pattern={`${passwordReg}`}
+            onFocus={(event) => event.target.select()}
+          />
+        </Tooltip>
         <ControlButtons>
           <Button type="submit" onClick={handleLogin}>Авторизоваться</Button>
           <Button type="submit" onClick={handleSignup}>Зарегистрироваться</Button>
