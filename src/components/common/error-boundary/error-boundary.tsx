@@ -13,7 +13,7 @@ class ErrorBoundary extends React.Component<{}, ErrorBoundaryState> {
     };
   }
 
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError(_error) {
     return { hasError: true };
   }
 
@@ -23,7 +23,7 @@ class ErrorBoundary extends React.Component<{}, ErrorBoundaryState> {
     });
   }
 
-  clearError() {
+  clearError = () => {
     this.setState({
       hasError: false,
     });
