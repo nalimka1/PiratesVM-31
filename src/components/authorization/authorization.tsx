@@ -5,11 +5,12 @@ import Button from '../common/button/button';
 import Input from '../common/input/input';
 import Banner from '../common/banner/banner';
 import md5 from 'md5';
-import authBackground from '../../assets/auth.png';
 import { passwordReg } from '../../constants/authorization.constants';
 import socket from '../../helpers/socket';
 import { SOCKET_EVENTS } from '../../constants/socket.constants';
 import Tooltip from '../common/tooltip/tooltip';
+
+const authBackground = require('../../assets/auth.png');
 
 const Container = styled.div`
   display: flex;

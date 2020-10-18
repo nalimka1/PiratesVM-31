@@ -4,7 +4,8 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Button from '../button/button';
 import { BASE_URL } from '../../../constants/url.constants';
-import errorImage from '../../../assets/error.png';
+
+const errorImage = require('../../../assets/error.png');
 
 const Container = styled.div`
   position: absolute;
