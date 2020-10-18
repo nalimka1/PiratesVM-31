@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import Chat from '../chat/chat';
+import Chat from '../common/chat/chat';
 
 const StyledLobby = styled.div`
   display: flex;

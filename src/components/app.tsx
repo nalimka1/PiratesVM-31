@@ -5,7 +5,7 @@ import Authorization from './authorization/authorization';
 import useAuth from '../hooks/auth.hook';
 import { AUTH_URL, LOBBY_URL } from '../constants/url.constants';
 import { ThemeProvider, DefaultTheme } from 'styled-components';
-import ErrorBoundary from './error-boundary/error-boundary';
+import ErrorBoundary from './common/error-boundary/error-boundary';
 import Lobby from './lobby/lobby';
 
 const theme: DefaultTheme = {

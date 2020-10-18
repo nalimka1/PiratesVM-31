@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import bannerImage from '../../assets/banner.png';
+import bannerImage from '../../../assets/banner.png';
 
 const StyledBanner = styled.div`
   position: absolute;

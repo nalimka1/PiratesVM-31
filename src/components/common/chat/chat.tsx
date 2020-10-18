@@ -4,13 +4,13 @@ import styled from 'styled-components';
 import Button from '../button/button';
 import Textarea from '../textarea/textarea';
 import Messages from '../messages/messages';
-import AuthContext from '../../contexts/auth.context';
-import { addMessages, sendMessage } from '../../redux/actions/chat.actions';
-import { selectMessages } from '../../redux/selectors/chat.selectors';
-import socket from '../../helpers/socket';
-import { SOCKET_EVENTS } from '../../constants/socket.constants';
-import { eventTypes } from '../../constants/event-types';
-import { MAX_CHAT_INPUT_LENGTH } from '../../constants/chat.constants';
+import AuthContext from '../../../contexts/auth.context';
+import { addMessages, sendMessage } from '../../../redux/actions/chat.actions';
+import { selectMessages } from '../../../redux/selectors/chat.selectors';
+import socket from '../../../helpers/socket';
+import { SOCKET_EVENTS } from '../../../constants/socket.constants';
+import { eventTypes } from '../../../constants/event-types';
+import { MAX_CHAT_INPUT_LENGTH } from '../../../constants/chat.constants';
 
 const StyledChat = styled.div`
   padding: 20px 10px;

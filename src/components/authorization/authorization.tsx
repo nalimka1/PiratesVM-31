@@ -1,15 +1,15 @@
 import React, { useContext, useEffect, useState } from 'react';
 import AuthContext from '../../contexts/auth.context';
 import styled from 'styled-components';
-import Button from '../button/button';
-import Input from '../input/input';
-import Banner from '../banner/banner';
+import Button from '../common/button/button';
+import Input from '../common/input/input';
+import Banner from '../common/banner/banner';
 import md5 from 'md5';
 import authBackground from '../../assets/auth.png';
 import { passwordReg } from '../../constants/authorization.constants';
 import socket from '../../helpers/socket';
 import { SOCKET_EVENTS } from '../../constants/socket.constants';
-import Tooltip from '../tooltip/tooltip';
+import Tooltip from '../common/tooltip/tooltip';
 
 const Container = styled.div`
   display: flex;
