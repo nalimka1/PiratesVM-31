@@ -42,6 +42,10 @@ const StyledTooltipLeft = styled(StyledTooltip)`
   top: 50%;
 `;
 
+const StyledTooltipTarget = styled.span`
+  cursor: pointer;
+`;
+
 export interface TooltipProps {
   children: React.ReactNode;
   content?: string;
@@ -78,14 +82,14 @@ const Tooltip: React.FC<TooltipProps> = ({
 
   return (
     <StyledTooltipWrapper>
-      {visible && <Tag style={styles}>{content}</Tag> }
-      <span
+      {visible && <Tag style={styles}>{content}</Tag>}
+      <StyledTooltipTarget
         className="targetElement"
         onMouseEnter={show}
         onMouseLeave={hide}
       >
         {children}
-      </span>
+      </StyledTooltipTarget>
     </StyledTooltipWrapper>
   );
 }
