@@ -37,9 +37,14 @@ const Authorization = () => {
   const [form, setForm] = useState({ login: '', password: '' });
 
   useEffect(() => {
-    socket.on(SOCKET_EVENTS.USER_LOGIN, ({ token }) => login(token))
-    socket.on(SOCKET_EVENTS.USER_SIGNUP, ({ token }) => login(token))
-  }, []);
+    const signin = ({ token }: { token: string }) => login(token);
+    socket.on(SOCKET_EVENTS.USER_LOGIN, signin);
+    socket.on(SOCKET_EVENTS.USER_SIGNUP, signin);
+    return () => {
+      socket.off(SOCKET_EVENTS.USER_LOGIN, signin);
+      socket.off(SOCKET_EVENTS.USER_SIGNUP, signin);
+    };
+  }, [login]);
 
   const isValidPassword = () => {
     return passwordReg.test(
