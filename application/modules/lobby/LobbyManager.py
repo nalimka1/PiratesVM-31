@@ -1,6 +1,6 @@
 from application.modules.BaseManager import BaseManager
 from application.modules.lobby.Player import Player
-#генерация пароля для лобби и roomId
+# генерация пароля для лобби и roomId
 from application.modules.common.Common import Common
 
 
@@ -10,7 +10,7 @@ class LobbyManager(BaseManager):
 
         # __teams = {
         #             'teamId': {passwordTeam, players=[user1, user2, ...], roomId},
-        #             'teamId': passwordTeam, players=[user1, user2, ...], roomId
+        #             'teamId': {passwordTeam, players=[user1, user2, ...], roomId}
         #         }
         # teamId == creatorToken
         # user = {
@@ -22,7 +22,8 @@ class LobbyManager(BaseManager):
         self.__teams = {}
 
         self.sio.on(self.MESSAGES['CREATE_TEAM'], self.createTeam)
-        #self.sio.on(self.MESSAGES['READY_TO_START'], self.readyToStart)
+        self.sio.on(self.MESSAGES['KICK_FROM_TEAM'], self.kickFromTeam)
+        # self.sio.on(self.MESSAGES['READY_TO_START'], self.readyToStart)
 
     '''def __findUserInTeams(self, token):
         for teamKey in self.__teams:
@@ -36,6 +37,15 @@ class LobbyManager(BaseManager):
             if not user['readyToStart']:
                 return False
         return True'''
+
+    def __getTeamIdByToken(self, token):
+        for teamId in self.__teams:
+            users = self.__teams[teamId]['players']
+            for user in users:
+                if user.token == token:
+                    userInTeamId = teamId
+                    return userInTeamId
+        return None
 
     def __deleteEmptyTeams(self):
         for teamId in self.__teams:
@@ -69,18 +79,29 @@ class LobbyManager(BaseManager):
                 await self.sio.emit(self.MESSAGES['READY_TO_START'], {}, user['sid'])'''
 
     async def createTeam(self, sid, data):
-        user = self.mediator.get(self.TRIGGERS['GET_USER_BY_TOKEN'], data) #создатель (data=token пока)
+        user = self.mediator.get(self.TRIGGERS['GET_USER_BY_TOKEN'], data)  # создатель (data=token пока)
         if user:
             for teamId in self.__teams:
-                if user['token'] == teamId: # если уже создал свою команду
+                if user['token'] == teamId:  # если уже создал свою команду
                     await self.sio.emit(self.MESSAGES['CREATE_TEAM'], False)
                     return
             self.__deleteUserFromAllTeams(user, sid)
             roomId = Common().getRoomId()
-            passwordTeam = Common().generatePasswordForLobby() #генерируется из больших англ. букв длиной 7
-            self.__teams[user['token']] = dict(passwordTeam=passwordTeam,players=[Player(user['token'], sid, False)],roomId=roomId)
+            passwordTeam = Common().generatePasswordForLobby()  # генерируется из больших англ. букв длиной 7
+            self.__teams[user['token']] = dict(passwordTeam=passwordTeam, players=[Player(user['token'], sid, False)],
+                                               roomId=roomId)
             self.sio.enter_room(sid, roomId)
             await self.sio.emit(self.MESSAGES['TEAM_LIST'], self.__teams)
-            await self.sio.emit(self.MESSAGES['CREATE_TEAM'], dict(passwordTeam=passwordTeam), roomId)
+            await self.sio.emit(self.MESSAGES['CREATE_TEAM'], True)
             return
         await self.sio.emit(self.MESSAGES['CREATE_TEAM'], False)
+
+    async def kickFromTeam(self, sid, data):
+        user = self.mediator.get(self.TRIGGERS['GET_USER_BY_TOKEN'], data)
+        if user:
+            teamId = self.__getTeamIdByToken(user['token'])
+            if teamId:
+                self.__deleteFromTeam(user['token'], teamId)
+                await self.sio.emit(self.MESSAGES['TEAM_LIST'], self.__teams)
+                await self.sio.emit(self.MESSAGES['KICK_FROM_TEAM'], True)
+                self.sio.leave_room(sid, self.__teams[teamId]['roomId'])
