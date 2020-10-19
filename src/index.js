@@ -5,15 +5,15 @@ import { Provider } from 'react-redux';
 import * as serviceWorker from './serviceWorker';
 import App from './components/app';
 import store from './redux/store';
-import './index.css';
 import { ThemeProvider } from 'styled-components';
-import theme from './constants/theme-default';
+import { AppTheme, GlobalStyle } from './theme/theme-default';
 
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
       <BrowserRouter>
-        <ThemeProvider theme={theme}>
+        <GlobalStyle />
+        <ThemeProvider theme={AppTheme}>
           <App/>
         </ThemeProvider>
       </BrowserRouter>
