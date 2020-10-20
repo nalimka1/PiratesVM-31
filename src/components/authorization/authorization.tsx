@@ -1,15 +1,16 @@
 import React, { useContext, useEffect, useState } from 'react';
 import AuthContext from '../../contexts/auth.context';
 import styled from 'styled-components';
-import Button from '../button/button';
-import Input from '../input/input';
-import Banner from '../banner/banner';
+import Button from '../common/button/button';
+import Input from '../common/input/input';
+import Banner from '../common/banner/banner';
 import md5 from 'md5';
-import authBackground from '../../assets/auth.png';
 import { passwordReg } from '../../constants/authorization.constants';
 import socket from '../../helpers/socket';
 import { SOCKET_EVENTS } from '../../constants/socket.constants';
-import Tooltip from '../tooltip/tooltip';
+import Tooltip from '../common/tooltip/tooltip';
+
+const authBackground = require('../../assets/auth.png');
 
 const Container = styled.div`
   display: flex;
@@ -37,9 +38,14 @@ const Authorization = () => {
   const [form, setForm] = useState({ login: '', password: '' });
 
   useEffect(() => {
-    socket.on(SOCKET_EVENTS.USER_LOGIN, ({ token }) => login(token))
-    socket.on(SOCKET_EVENTS.USER_SIGNUP, ({ token }) => login(token))
-  }, []);
+    const signin = ({ token }: { token: string }) => login(token);
+    socket.on(SOCKET_EVENTS.USER_LOGIN, signin);
+    socket.on(SOCKET_EVENTS.USER_SIGNUP, signin);
+    return () => {
+      socket.off(SOCKET_EVENTS.USER_LOGIN, signin);
+      socket.off(SOCKET_EVENTS.USER_SIGNUP, signin);
+    };
+  }, [login]);
 
   const isValidPassword = () => {
     return passwordReg.test(

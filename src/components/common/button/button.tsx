@@ -2,8 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 
 const StyledButton = styled.button`
-  background: ${({ theme }) => theme.bg};
-  color: ${({ theme }) => theme.fg};
+  background: ${({ theme }) => theme.colors.primary};
+  color: ${({ theme }) => theme.colors.text};
   font-size: 2rem;
   margin: 4px;
   padding: 20px 10px;
@@ -14,7 +14,7 @@ const StyledButton = styled.button`
 
   &:hover {
     cursor: pointer;
-    background: ${({ theme }) => theme.bgActive};
+    background: ${({ theme }) => theme.colors.accent};
     border: 1px solid;
   }
 

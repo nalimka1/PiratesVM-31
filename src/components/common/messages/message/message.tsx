@@ -10,7 +10,7 @@ const StyledMessage = styled.div`
   display: flex;
   margin: 5px 0;
   padding: 5px 15px;
-  color: ${({ theme }) => theme.fg};
+  color: ${({ theme }) => theme.colors.text};
   width: 100%;
   font-size: 2.4rem;
 `;

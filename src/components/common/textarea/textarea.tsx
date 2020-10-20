@@ -6,30 +6,30 @@ const StyledTextarea = styled.textarea`
   width: 100%;
   font-size: 2.2rem;
   padding: 20px 8px;
-  color: ${({ theme }) => theme.fg};
+  color: ${({ theme }) => theme.colors.text};
   border: none;
-  border-bottom: 2px solid ${({ theme }) => theme.bgActive};
+  border-bottom: 2px solid ${({ theme }) => theme.colors.accent};
   background: transparent;
   outline: none;
   
   &::placeholder {
     font-size: 2rem;
-    color: ${({ theme }) => theme.fg};
+    color: ${({ theme }) => theme.colors.text};
   }
   
   &::-webkit-scrollbar {
-    width: ${({ theme }) => theme.scrollbarWidth};
+    width: ${({ theme: { scrollbar } }) => scrollbar.width};
   }
   
   &::-webkit-scrollbar-track {
-    background-color: ${({ theme }) => theme.scrollbarBg};
-    border-radius: ${({ theme }) => theme.scrollbarBorderRadius};
+    background-color: ${({ theme: { scrollbar }  }) => scrollbar.bg};
+    border-radius: ${({ theme: { scrollbar }  }) => scrollbar.borderRadius};
   }
   
   &::-webkit-scrollbar-thumb {
-    background-color: ${({ theme }) => theme.scrollbarThumbBg};
-    border-radius: ${({ theme }) => theme.scrollbarBorderRadius};
-    border: 1px solid ${({ theme }) => theme.scrollbarBg};
+    background-color: ${({ theme: { scrollbar }  }) => scrollbar.thumbBg};
+    border-radius: ${({ theme: { scrollbar }  }) => scrollbar.borderRadius};
+    border: 1px solid ${({ theme: { scrollbar }  }) => scrollbar.bg};
   }
 `;
 

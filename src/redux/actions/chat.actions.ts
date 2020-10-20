@@ -1,5 +1,5 @@
 import { ADD_MESSAGES } from '../../constants/action-types.constants';
-import { MessageInterface } from '../../components/messages/message/message';
+import { MessageInterface } from '../../components/common/messages/message/message';
 import { SOCKET_EVENTS } from '../../constants/socket.constants';
 
 export const addMessages = (messages: MessageInterface | MessageInterface[]) => ({

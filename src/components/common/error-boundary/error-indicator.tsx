@@ -3,8 +3,9 @@ import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Button from '../button/button';
-import { BASE_URL } from '../../constants/url.constants';
-import errorImage from '../../assets/error.png';
+import { BASE_URL } from '../../../constants/url.constants';
+
+const errorImage = require('../../../assets/error.png');
 
 const Container = styled.div`
   position: absolute;
@@ -17,7 +18,7 @@ const Container = styled.div`
 `;
 
 const StyledErrorIndicator = styled.div`
-  color: ${({ theme }) => theme.fgError};
+  color: ${({ theme }) => theme.colors.error};
   font-size: 3rem;
   display: flex;
   align-items: center;
@@ -26,7 +27,7 @@ const StyledErrorIndicator = styled.div`
 `;
 
 const ErrorButton = styled(Button)`
-  color: ${({ theme }) => theme.fgError};
+  color: ${({ theme }) => theme.colors.error};
   width: 50%;
 `;
 

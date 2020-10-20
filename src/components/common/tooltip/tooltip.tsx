@@ -11,8 +11,8 @@ const StyledTooltip = styled.span`
   padding: 10px;
   border-radius: 3px;
   overflow: hidden;
-  color: ${({ theme }) => theme.fg};
-  background-color: ${({ theme }) => theme.bgActive};
+  color: ${({ theme }) => theme.colors.text};
+  background-color: ${({ theme }) => theme.colors.accent};
   width: 300px;
   font-size: 1.7rem;
   z-index: 9999;
@@ -40,6 +40,10 @@ const StyledTooltipLeft = styled(StyledTooltip)`
   right: 115%;
   transform: translateY(-50%);
   top: 50%;
+`;
+
+const StyledTooltipTarget = styled.span`
+  cursor: pointer;
 `;
 
 export interface TooltipProps {
@@ -78,14 +82,14 @@ const Tooltip: React.FC<TooltipProps> = ({
 
   return (
     <StyledTooltipWrapper>
-      {visible && <Tag style={styles}>{content}</Tag> }
-      <span
+      {visible && <Tag style={styles}>{content}</Tag>}
+      <StyledTooltipTarget
         className="targetElement"
         onMouseEnter={show}
         onMouseLeave={hide}
       >
         {children}
-      </span>
+      </StyledTooltipTarget>
     </StyledTooltipWrapper>
   );
 }

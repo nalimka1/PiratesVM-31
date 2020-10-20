@@ -29,20 +29,20 @@ const StyledScrollBar = styled.div`
   right: -8px;
   top: 0;
   bottom: 0;
-  width: ${({ theme }) => theme.scrollbarWidth};
+  width: ${({ theme: { scrollbar } }) => scrollbar.width};
   height: 100%;
-  border-radius: ${({ theme }) => theme.scrollbarBorderRadius};
-  background-color: ${({ theme }) => theme.scrollbarBg};
+  border-radius: ${({ theme: { scrollbar } }) => scrollbar.borderRadius};
+  background-color: ${({ theme: { scrollbar } }) => scrollbar.bg};
 `;
 
 const ScrollThumb = styled.div`
   position: absolute;
   top: 0;
   margin-left: 1px;
-  width: ${({ theme }) => theme.scrollbarThumbWidth};
+  width: ${({ theme: { scrollbar } }) => scrollbar.thumbWidth};
   height: 20px;
-  border-radius: ${({ theme }) => theme.scrollbarBorderRadius};
-  background-color: ${({ theme }) => theme.scrollbarThumbBg};
+  border-radius: ${({ theme: { scrollbar } }) => scrollbar.borderRadius};
+  background-color: ${({ theme: { scrollbar } }) => scrollbar.thumbBg};
 `;
 
 interface ScrollbarProps {
