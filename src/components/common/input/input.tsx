@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 const StyledLabel = styled.label`
-  color: ${({ theme }) => theme.fg};
+  color: ${({ theme }) => theme.colors.text};
   font-size: 1.6rem;
   font-weight: 600;
 `;
@@ -13,28 +13,28 @@ const StyledInput = styled.input`
   min-width: 280px;
   width: 100%;
   margin: 8px;
-  color: ${({ theme }) => theme.fg};
+  color: ${({ theme }) => theme.colors.text};
   background: transparent;
   border: none;
-  border-bottom: 2px solid ${({ theme }) => theme.bgActive};
+  border-bottom: 2px solid ${({ theme }) => theme.colors.accent};
   outline: none;
   
   &::placeholder {
     font-size: 2rem;
-    color: ${({ theme }) => theme.fg};
+    color: ${({ theme }) => theme.colors.text};
   }
   
   &:-webkit-autofill,
   &:-webkit-autofill:hover, 
   &:-webkit-autofill:focus, 
   &:-webkit-autofill:active {
-    background-color: ${({ theme }) => theme.bgActive};
+    background-color: ${({ theme }) => theme.colors.accent};
   }
 `;
 
 const StyledError = styled.span`
   margin-top: 10px;
-  color: ${({ theme }) => theme.fgError};
+  color: ${({ theme }) => theme.colors.error};
   font-size: 1.4rem;
 `;
 

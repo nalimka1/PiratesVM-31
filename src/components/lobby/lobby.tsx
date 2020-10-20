@@ -7,7 +7,7 @@ const StyledLobby = styled.div`
   justify-content: space-around;
   align-items: center;
   height: 100vh;
-  background: ${(({ theme }) => theme.bg)};
+  background: ${(({ theme }) => theme.colors.primary)};
 `;
 
 const Lobby = () => {

@@ -18,7 +18,7 @@ const Container = styled.div`
 `;
 
 const StyledErrorIndicator = styled.div`
-  color: ${({ theme }) => theme.fgError};
+  color: ${({ theme }) => theme.colors.error};
   font-size: 3rem;
   display: flex;
   align-items: center;
@@ -27,7 +27,7 @@ const StyledErrorIndicator = styled.div`
 `;
 
 const ErrorButton = styled(Button)`
-  color: ${({ theme }) => theme.fgError};
+  color: ${({ theme }) => theme.colors.error};
   width: 50%;
 `;
 

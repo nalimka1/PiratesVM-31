@@ -11,8 +11,8 @@ const StyledTooltip = styled.span`
   padding: 10px;
   border-radius: 3px;
   overflow: hidden;
-  color: ${({ theme }) => theme.fg};
-  background-color: ${({ theme }) => theme.bgActive};
+  color: ${({ theme }) => theme.colors.text};
+  background-color: ${({ theme }) => theme.colors.accent};
   width: 300px;
   font-size: 1.7rem;
   z-index: 9999;
