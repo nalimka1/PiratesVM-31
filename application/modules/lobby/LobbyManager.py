@@ -19,30 +19,32 @@ class LobbyManager(BaseManager):
         #   readyToStart: False
         # }
 
-        self.__teams = {}
+        self.__teams = {
+            '2312': {'passwordTeam': 12, 'players': [dict(token='111',sid='1231',readyToStart=True), dict(token='233',sid='1231',readyToStart=True)], 'roomId':333}
+        }
 
         self.sio.on(self.MESSAGES['CREATE_TEAM'], self.createTeam)
         self.sio.on(self.MESSAGES['KICK_FROM_TEAM'], self.kickFromTeam)
-        # self.sio.on(self.MESSAGES['READY_TO_START'], self.readyToStart)
+        self.sio.on(self.MESSAGES['READY_TO_START'], self.readyToStart)
 
-    '''def __findUserInTeams(self, token):
+    def __findUserInTeams(self, token):
         for teamKey in self.__teams:
-            for user in self.__teams[teamKey]:
+            for user in self.__teams[teamKey]['players']:
                 if user['token'] == token:
                     return user, teamKey
         return None, None
 
     def __checkTeamIsReady(self, teamId):
-        for user in self.__teams[teamId]:
+        for user in self.__teams[teamId]['players']:
             if not user['readyToStart']:
                 return False
-        return True'''
+        return True
 
     def __getTeamIdByToken(self, token):
         for teamId in self.__teams:
             users = self.__teams[teamId]['players']
             for user in users:
-                if user.token == token:
+                if user['token'] == token:
                     userInTeamId = teamId
                     return userInTeamId
         return None
@@ -51,32 +53,34 @@ class LobbyManager(BaseManager):
         for teamId in self.__teams:
             if len(self.__teams[teamId]['players']) == 0:
                 del self.__teams[teamId]
+                return
 
     def __deleteFromTeam(self, userToken, teamId):
         users = self.__teams[teamId]['players']
         for user in users:
-            if user.token == userToken:
+            if user['token'] == userToken:
                 self.__teams[teamId]['players'].remove(user)
                 return
 
-    def __deleteUserFromAllTeams(self, user, sid):
+    def __deleteUserFromAllTeams(self, userToken, sid):
         for teamId in self.__teams:
-            for users in self.__teams[teamId]['players']:
-                if users.token == user['token']:
+            for user in self.__teams[teamId]['players']:
+                if user['token'] == userToken:
                     self.sio.leave_room(sid, self.__teams[teamId]['roomId'])
-                    if user['token'] == self.__teams[teamId]:
+                    if userToken == self.__teams[teamId]:
                         del self.__teams[teamId]
-                    self.__deleteFromTeam(users.token, teamId)
+                    self.__deleteFromTeam(user['token'], teamId)
                     continue
         self.__deleteEmptyTeams()
 
-    '''async def readyToStart(self, sid, data):
+    async def readyToStart(self, sid, data):
         user, teamId = self.__findUserInTeams(data['token'])
         if user:
             user['readyToStart'] = True
         if teamId and self.__checkTeamIsReady(teamId):
-            for user in self.__teams[teamId]:
-                await self.sio.emit(self.MESSAGES['READY_TO_START'], {}, user['sid'])'''
+            for user in self.__teams[teamId]['players']:
+                await self.sio.emit(self.MESSAGES['READY_TO_START'], {}, user['sid'])
+        await self.sio.emit(self.MESSAGES['READY_TO_START'], False)
 
     async def createTeam(self, sid, data):
         user = self.mediator.get(self.TRIGGERS['GET_USER_BY_TOKEN'], data)  # создатель (data=token пока)
@@ -85,10 +89,10 @@ class LobbyManager(BaseManager):
                 if user['token'] == teamId:  # если уже создал свою команду
                     await self.sio.emit(self.MESSAGES['CREATE_TEAM'], False)
                     return
-            self.__deleteUserFromAllTeams(user, sid)
+            self.__deleteUserFromAllTeams(user['token'], sid)
             roomId = Common().getRoomId()
             passwordTeam = Common().generatePasswordForLobby()  # генерируется из больших англ. букв длиной 7
-            self.__teams[user['token']] = dict(passwordTeam=passwordTeam, players=[Player(user['token'], sid, False)],
+            self.__teams[user['token']] = dict(passwordTeam=passwordTeam, players=[dict(token=user['token'], sid=sid, readyToStart=False)],
                                                roomId=roomId)
             self.sio.enter_room(sid, roomId)
             await self.sio.emit(self.MESSAGES['TEAM_LIST'], self.__teams)
@@ -103,5 +107,7 @@ class LobbyManager(BaseManager):
             if teamId:
                 self.__deleteFromTeam(user['token'], teamId)
                 await self.sio.emit(self.MESSAGES['TEAM_LIST'], self.__teams)
-                await self.sio.emit(self.MESSAGES['KICK_FROM_TEAM'], True)
+                await self.sio.emit(self.MESSAGES['KICK_FROM_TEAM'], dict(token=user['token']))
                 self.sio.leave_room(sid, self.__teams[teamId]['roomId'])
+                return
+        await self.sio.emit(self.MESSAGES['KICK_FROM_TEAM'], False)
