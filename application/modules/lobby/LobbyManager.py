@@ -27,6 +27,7 @@ class LobbyManager(BaseManager):
         # self.sio.on(self.MESSAGES['KICK_FROM_TEAM'], self.kickFromTeam)
         self.sio.on(self.MESSAGES['LEAVE_TEAM'], self.leaveTeam)
         self.sio.on(self.MESSAGES['READY_TO_START'], self.readyToStart)
+        self.sio.on(self.MESSAGES['JOIN_TO_TEAM'], self.joinToTeam)
 
     def __findUserInTeams(self, token):
         for teamKey in self.__teams:
@@ -126,3 +127,17 @@ class LobbyManager(BaseManager):
             await self.sio.emit(self.MESSAGES['LEAVE_TEAM'], dict(token=user['token']))
             return
         await self.sio.emit(self.MESSAGES['LEAVE_TEAM'], False)
+
+    async def joinToTeam(self, sio, data):
+        user = self.mediator.get(self.TRIGGERS['GET_USER_BY_TOKEN'], data)
+        if user:
+            for key in self.teams.keys():
+                if key == data['teamId'] and self.teams[key]['passwordTeam'] == data['passwordTeam']:
+                    self.teams[key]['players'].append({'token': data['userToken']})
+                    await self.sio.emit(self.MESSAGES['TEAM_LIST'], self.teams)
+                    await self.sio.emit(self.MESSAGES['JOIN_TO_TEAM'], True)
+                    return True
+                else:
+                    await self.sio.emit(self.MESSAGES['JOIN_TO_TEAM'], False)
+                    return False
+        await self.sio.emit(self.MESSAGES['JOIN_TO_TEAM'], False)
