@@ -17,6 +17,7 @@ class UserManager(BaseManager):
         self.sio.on(self.MESSAGES['USER_LOGIN'], self.auth)
         self.sio.on(self.MESSAGES['USER_LOGOUT'], self.logout)
         self.sio.on(self.MESSAGES['USER_SIGNUP'], self.registration)
+        self.sio.on(self.MESSAGES['USERS_ONLINE'], self.getUsersOnline)
 
     def __generateToken(self, login):
         if login:
@@ -52,6 +53,9 @@ class UserManager(BaseManager):
         if data:
             return self.db.updateTokenByLogin(data['login'], data['token'])
         return None
+    
+    def __getUsersOnline(self):
+        return self.db.getUsersOnline()
 
     async def registration(self, sio, data):
         name = data['login']
@@ -91,3 +95,6 @@ class UserManager(BaseManager):
             self.mediator.call(self.EVENTS['UPDATE_TOKEN_BY_LOGIN'], dict(login=user['login'], token=token))
             return True
         return False
+
+    async def getUsersOnline(self, sio):
+        await self.sio.emit(self.MESSAGES['USERS_ONLINE'], self.__getUsersOnline())

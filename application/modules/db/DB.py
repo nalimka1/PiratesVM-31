@@ -62,6 +62,11 @@ class DB:
     def getAllUsers(self):
         self.cursor.execute("SELECT id, name, login, token FROM users")
         return self.cursor.fetchall()
+    
+    @toArrayOfDicts
+    def getUsersOnline(self):
+        self.cursor.execute("SELECT id, name, login, token FROM users WHERE token != 'NULL' ")
+        return self.cursor.fetchall()
 
     @toDict
     def getUserById(self, userId):

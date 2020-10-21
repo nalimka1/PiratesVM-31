@@ -9,8 +9,8 @@ class LobbyManager(BaseManager):
         super().__init__(mediator=mediator, sio=sio, MESSAGES=MESSAGES)
 
         # __teams = {
-        #             'teamId': {passwordTeam, players=[user1, user2, ...], roomId},
-        #             'teamId': {passwordTeam, players=[user1, user2, ...], roomId}
+        #             'teamId': {passwordTeam, players=[{user1}, {user2}, ...], roomId},
+        #             'teamId': {passwordTeam, players=[{user1}, {user2}, ...], roomId}
         #         }
         # teamId == creatorToken
         # user = {
@@ -19,30 +19,36 @@ class LobbyManager(BaseManager):
         #   readyToStart: False
         # }
 
-        self.__teams = {}
+        self.__teams = {
+            '2': {'passwordTeam': 12, 'players': [dict(token='1', sid='1231', readyToStart=True),
+                                                  dict(token='2', sid='1232', readyToStart=True),
+                                                  dict(token='3', sid='1231', readyToStart=True), ], 'roomId': 333}
+        }
 
         self.sio.on(self.MESSAGES['CREATE_TEAM'], self.createTeam)
-        self.sio.on(self.MESSAGES['KICK_FROM_TEAM'], self.kickFromTeam)
-        # self.sio.on(self.MESSAGES['READY_TO_START'], self.readyToStart)
+        # self.sio.on(self.MESSAGES['KICK_FROM_TEAM'], self.kickFromTeam)
+        self.sio.on(self.MESSAGES['LEAVE_TEAM'], self.leaveTeam)
+        self.sio.on(self.MESSAGES['READY_TO_START'], self.readyToStart)
+        self.sio.on(self.MESSAGES['JOIN_TO_TEAM'], self.joinToTeam)
 
-    '''def __findUserInTeams(self, token):
+    def __findUserInTeams(self, token):
         for teamKey in self.__teams:
-            for user in self.__teams[teamKey]:
+            for user in self.__teams[teamKey]['players']:
                 if user['token'] == token:
                     return user, teamKey
         return None, None
 
     def __checkTeamIsReady(self, teamId):
-        for user in self.__teams[teamId]:
+        for user in self.__teams[teamId]['players']:
             if not user['readyToStart']:
                 return False
-        return True'''
+        return True
 
     def __getTeamIdByToken(self, token):
         for teamId in self.__teams:
             users = self.__teams[teamId]['players']
             for user in users:
-                if user.token == token:
+                if user['token'] == token:
                     userInTeamId = teamId
                     return userInTeamId
         return None
@@ -51,32 +57,34 @@ class LobbyManager(BaseManager):
         for teamId in self.__teams:
             if len(self.__teams[teamId]['players']) == 0:
                 del self.__teams[teamId]
+                return
 
     def __deleteFromTeam(self, userToken, teamId):
         users = self.__teams[teamId]['players']
         for user in users:
-            if user.token == userToken:
+            if user['token'] == userToken:
                 self.__teams[teamId]['players'].remove(user)
                 return
 
-    def __deleteUserFromAllTeams(self, user, sid):
+    def __deleteUserFromAllTeams(self, userToken, sid):
         for teamId in self.__teams:
-            for users in self.__teams[teamId]['players']:
-                if users.token == user['token']:
+            for user in self.__teams[teamId]['players']:
+                if user['token'] == userToken:
                     self.sio.leave_room(sid, self.__teams[teamId]['roomId'])
-                    if user['token'] == self.__teams[teamId]:
+                    if userToken == self.__teams[teamId]:
                         del self.__teams[teamId]
-                    self.__deleteFromTeam(users.token, teamId)
+                    self.__deleteFromTeam(user['token'], teamId)
                     continue
         self.__deleteEmptyTeams()
 
-    '''async def readyToStart(self, sid, data):
+    async def readyToStart(self, sid, data):
         user, teamId = self.__findUserInTeams(data['token'])
         if user:
             user['readyToStart'] = True
         if teamId and self.__checkTeamIsReady(teamId):
-            for user in self.__teams[teamId]:
-                await self.sio.emit(self.MESSAGES['READY_TO_START'], {}, user['sid'])'''
+            for user in self.__teams[teamId]['players']:
+                await self.sio.emit(self.MESSAGES['READY_TO_START'], {}, user['sid'])
+        await self.sio.emit(self.MESSAGES['READY_TO_START'], False)
 
     async def createTeam(self, sid, data):
         user = self.mediator.get(self.TRIGGERS['GET_USER_BY_TOKEN'], data)  # создатель (data=token пока)
@@ -85,10 +93,13 @@ class LobbyManager(BaseManager):
                 if user['token'] == teamId:  # если уже создал свою команду
                     await self.sio.emit(self.MESSAGES['CREATE_TEAM'], False)
                     return
-            self.__deleteUserFromAllTeams(user, sid)
+            self.__deleteUserFromAllTeams(user['token'], sid)
             roomId = Common().getRoomId()
             passwordTeam = Common().generatePasswordForLobby()  # генерируется из больших англ. букв длиной 7
-            self.__teams[user['token']] = dict(passwordTeam=passwordTeam, players=[Player(user['token'], sid, False)],
+            self.__teams[user['token']] = dict(passwordTeam=passwordTeam,
+                                               players=[dict(token=user['token'],
+                                                             sid=sid,
+                                                             readyToStart=False)],
                                                roomId=roomId)
             self.sio.enter_room(sid, roomId)
             await self.sio.emit(self.MESSAGES['TEAM_LIST'], self.__teams)
@@ -97,11 +108,39 @@ class LobbyManager(BaseManager):
         await self.sio.emit(self.MESSAGES['CREATE_TEAM'], False)
 
     async def kickFromTeam(self, sid, data):
-        user = self.mediator.get(self.TRIGGERS['GET_USER_BY_TOKEN'], data)
-        if user:
-            teamId = self.__getTeamIdByToken(user['token'])
-            if teamId:
+        dataUser = dict(token=data['kickedToken'])
+        dataUserCap = dict(token=data['captainToken'])
+        user = self.mediator.get(self.TRIGGERS['GET_USER_BY_TOKEN'], dataUser)
+        userCap = self.mediator.get(self.TRIGGERS['GET_USER_BY_TOKEN'], dataUserCap)
+        teamId = self.__getTeamIdByToken(user['token'])
+        if userCap['token'] == teamId:
+            if user:
                 self.__deleteFromTeam(user['token'], teamId)
                 await self.sio.emit(self.MESSAGES['TEAM_LIST'], self.__teams)
-                await self.sio.emit(self.MESSAGES['KICK_FROM_TEAM'], True)
+                await self.sio.emit(self.MESSAGES['KICK_FROM_TEAM'], dict(kickedToken=user['token'], captainToken=userCap['token']))
                 self.sio.leave_room(sid, self.__teams[teamId]['roomId'])
+                return
+        await self.sio.emit(self.MESSAGES['KICK_FROM_TEAM'], False)
+
+    async def leaveTeam(self, sid, data):
+        user = self.mediator.get(self.TRIGGERS['GET_USER_BY_TOKEN'], data)
+        if user:
+            self.__deleteUserFromAllTeams(user['token'], sid)
+            await self.sio.emit(self.MESSAGES['TEAM_LIST'], self.__teams)
+            await self.sio.emit(self.MESSAGES['LEAVE_TEAM'], dict(token=user['token']))
+            return
+        await self.sio.emit(self.MESSAGES['LEAVE_TEAM'], False)
+
+    async def joinToTeam(self, sio, data):
+        user = self.mediator.get(self.TRIGGERS['GET_USER_BY_TOKEN'], data)
+        if user:
+            for key in self.teams.keys():
+                if key == data['teamId'] and self.__teams[key]['passwordTeam'] == data['passwordTeam']:
+                    self.teams[key]['players'].append({'token': data['userToken']})
+                    await self.sio.emit(self.MESSAGES['TEAM_LIST'], self.teams)
+                    await self.sio.emit(self.MESSAGES['JOIN_TO_TEAM'], True)
+                    return True
+                else:
+                    await self.sio.emit(self.MESSAGES['JOIN_TO_TEAM'], False)
+                    return False
+        await self.sio.emit(self.MESSAGES['JOIN_TO_TEAM'], False)
