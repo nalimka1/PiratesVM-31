@@ -1,4 +1,4 @@
-import { MessageInterface } from '../components/messages/message/message';
+import { MessageInterface } from '../components/common/messages/message/message';
 
 export const MAX_CHAT_INPUT_LENGTH = 300;
 
